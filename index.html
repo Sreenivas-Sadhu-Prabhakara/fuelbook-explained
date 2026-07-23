@@ -1,0 +1,426 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; connect-src 'none'; img-src 'self' data:; base-uri 'none'; form-action 'none'; frame-ancestors 'none'; object-src 'none'">
+  <title>fuelbook explained — how a fuel mileage calculator gets honest km/L, tank to tank</title>
+  <meta name="description" content="How the full-to-full fuel mileage method works, animated: honest tank-to-tank km/L, true cost per km, and a privacy guarantee the browser itself enforces. The story behind the free fuelbook app.">
+  <meta name="color-scheme" content="light dark">
+  <link rel="canonical" href="https://sreenivas-sadhu-prabhakara.github.io/fuelbook-explained/">
+  <meta name="robots" content="index, follow, max-image-preview:large">
+  <meta name="author" content="Sreenivas Sadhu Prabhakara">
+  <meta name="keywords" content="fuel mileage calculator explained, full to full method, tank to tank mileage, how to calculate fuel mileage, km/l calculation, real vs claimed mileage, cost per km, fuel log app, fuelbook">
+  <meta name="theme-color" content="#062E38" media="(prefers-color-scheme: dark)">
+  <meta name="theme-color" content="#FAF5EC" media="(prefers-color-scheme: light)">
+
+  <!-- Open Graph -->
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="fuelbook explained">
+  <meta property="og:title" content="fuelbook explained — how honest fuel mileage math works">
+  <meta property="og:description" content="The full-to-full method, animated: honest tank-to-tank km/L, true cost per km, and a privacy guarantee the browser itself enforces.">
+  <meta property="og:url" content="https://sreenivas-sadhu-prabhakara.github.io/fuelbook-explained/">
+  <meta property="og:locale" content="en_IN">
+  <meta property="og:image" content="https://sreenivas-sadhu-prabhakara.github.io/fuelbook-explained/og-image.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="fuelbook explained — a fuel-gauge dial from E to F beside the words: how honest mileage math works">
+
+  <!-- Twitter -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="fuelbook explained — how honest fuel mileage math works">
+  <meta name="twitter:description" content="The full-to-full method, animated: honest tank-to-tank km/L, true cost per km, and a browser-enforced privacy guarantee.">
+  <meta name="twitter:image" content="https://sreenivas-sadhu-prabhakara.github.io/fuelbook-explained/og-image.png">
+  <meta name="twitter:image:alt" content="fuelbook explained — a fuel-gauge dial from E to F beside the words: how honest mileage math works">
+
+  <link rel="stylesheet" href="styles.css">
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="apple-touch-icon.png">
+  <link rel="manifest" href="manifest.webmanifest">
+
+  <!-- Structured data (data blocks; not executable script) -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebApplication",
+    "name": "fuelbook",
+    "description": "A fuel mileage calculator and fill-up log that turns fill-ups into honest tank-to-tank km/L and true all-in cost per km, using the full-to-full method with its limits stated on screen. Works offline; data stays in your browser. This page is its animated explainer.",
+    "url": "https://sreenivas-sadhu-prabhakara.github.io/fuelbook/",
+    "applicationCategory": "UtilitiesApplication",
+    "operatingSystem": "Any (modern web browser)",
+    "browserRequirements": "Requires a modern web browser with JavaScript enabled.",
+    "isAccessibleForFree": true,
+    "offers": { "@type": "Offer", "price": "0", "priceCurrency": "INR" },
+    "license": "https://opensource.org/licenses/MIT",
+    "author": { "@type": "Person", "name": "Sreenivas Sadhu Prabhakara" },
+    "softwareVersion": "0.1.0",
+    "mainEntityOfPage": "https://sreenivas-sadhu-prabhakara.github.io/fuelbook-explained/",
+    "featureList": [
+      "Fill-up log with FULL/PARTIAL fills, edit and delete",
+      "Tank-to-tank km/L by the full-to-full method, partials folded in",
+      "Fuel-only and all-in cost per km over the same honest window",
+      "km/L trend chart with trailing-3-tank average",
+      "km+L or mi+gal unit mode and free-text currency symbol",
+      "CSV export and a printable one-page summary",
+      "100% offline — data never leaves your browser"
+    ]
+  }
+  </script>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      {
+        "@type": "Question",
+        "name": "What is the full-to-full method for calculating fuel mileage?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Fill the tank until the pump cuts off and note the odometer. Next time you fill completely, divide the kilometres travelled by the litres it took to refill. A full tank is the only repeatable reference point in manual logging, which is why the method works. fuelbook automates it over a whole log, folding partial top-ups into the correct tank segment."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Why does fuelbook sometimes refuse to show a mileage figure?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Because the method genuinely cannot produce one. km/L exists only between two FULL fills; a log with one full fill, or only partials, has no repeatable reference points, so the app shows spend totals and says 'need two full fills to compute' instead of inventing a number."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Is fuelbook private? Does it work offline?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Yes. fuelbook has no account, no cloud, and no analytics. Its Content-Security-Policy sets connect-src to 'none', so the browser itself blocks any network send — the privacy is enforced by the browser, not promised by the developer. Your log lives only in your browser's localStorage; CSV export is your backup."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "What is the difference between fuel cost per km and all-in cost per km?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Fuel cost per km divides fuel spend by kilometres travelled. All-in cost per km adds service, insurance, tyres and other expenses over the same first-full-to-last-full window, so both figures cover exactly the same kilometres. Fuel alone usually understates what a vehicle really costs to run."
+        }
+      }
+    ]
+  }
+  </script>
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+
+  <header class="site-header">
+    <div class="wrap header-row">
+      <span class="brand">
+        <svg class="brand-dial" viewBox="0 0 64 44" aria-hidden="true" focusable="false">
+          <path d="M8 36 A26 26 0 0 1 56 36" fill="none" class="dial-arc"/>
+          <line x1="8" y1="36" x2="8" y2="30" class="dial-tick"/>
+          <line x1="32" y1="10" x2="32" y2="16" class="dial-tick"/>
+          <line x1="56" y1="36" x2="56" y2="30" class="dial-tick"/>
+          <line x1="32" y1="36" x2="50" y2="23" class="dial-needle"/>
+          <circle cx="32" cy="36" r="4" class="dial-hub"/>
+        </svg>
+        <span class="brand-name">fuelbook <span class="brand-sub">explained</span></span>
+      </span>
+      <a class="btn btn-small" href="https://sreenivas-sadhu-prabhakara.github.io/fuelbook/">Open the app</a>
+    </div>
+  </header>
+
+  <main id="main">
+
+    <!-- ============ HERO ============ -->
+    <section class="hero wrap">
+      <div class="hero-copy">
+        <p class="kicker">An animated tour of a free, offline fill-up log</p>
+        <h1>Fuel mileage calculator, explained — how <em>fuelbook</em> turns fill-ups into honest tank-to-tank km/L</h1>
+        <p class="lede">Everyone argues about real vs claimed mileage. fuelbook settles it with the one method that actually works for manual logging — <strong>full-to-full</strong> — and refuses to invent a number when the method can't produce one. This page shows you exactly how, with a worked example you can check by hand.</p>
+        <div class="cta-row">
+          <a class="btn btn-primary" href="https://sreenivas-sadhu-prabhakara.github.io/fuelbook/">Open fuelbook — free, no sign-up</a>
+          <a class="btn btn-ghost" href="#method">See the method</a>
+        </div>
+      </div>
+      <div class="hero-dial" role="img" aria-label="A fuel gauge whose needle sweeps from E to F">
+        <svg viewBox="0 0 320 250" aria-hidden="true" focusable="false">
+          <path d="M32 220 A128 128 0 0 1 288 220" fill="none" class="big-arc-bg"/>
+          <path d="M32 220 A128 128 0 0 1 288 220" fill="none" class="big-arc"/>
+          <line x1="32" y1="220" x2="52" y2="220" class="big-tick strong" transform="rotate(0 160 220)"/>
+          <line x1="32" y1="220" x2="48" y2="220" class="big-tick" transform="rotate(45 160 220)"/>
+          <line x1="32" y1="220" x2="48" y2="220" class="big-tick" transform="rotate(90 160 220)"/>
+          <line x1="32" y1="220" x2="48" y2="220" class="big-tick" transform="rotate(135 160 220)"/>
+          <line x1="32" y1="220" x2="52" y2="220" class="big-tick strong" transform="rotate(180 160 220)"/>
+          <text x="32" y="246" class="dial-label">E</text>
+          <text x="288" y="246" class="dial-label f">F</text>
+          <g class="needle-g">
+            <line x1="160" y1="220" x2="262" y2="150" class="big-needle"/>
+            <circle cx="160" cy="220" r="13" class="big-hub"/>
+            <circle cx="160" cy="220" r="5" class="big-hub-dot"/>
+          </g>
+        </svg>
+        <p class="dial-caption">Log every <strong>full</strong> fill. The math does the rest.</p>
+      </div>
+    </section>
+
+    <!-- ============ PROBLEM ============ -->
+    <section id="problem" class="wrap" data-animate>
+      <div class="arc-divider" aria-hidden="true"></div>
+      <h2>The problem: nobody agrees on "real mileage"</h2>
+      <p class="section-lede">Three numbers get shouted in every mileage argument — and all three are wrong in a different way.</p>
+      <div class="card-grid three">
+        <div class="card stagger">
+          <h3>The brochure figure</h3>
+          <p>Measured in lab conditions. Your commute has traffic, pillion riders, and a luggage rack. Real logs routinely land well below it — but by how much, for <em>your</em> vehicle? Nobody's brochure knows.</p>
+        </div>
+        <div class="card stagger">
+          <h3>The one-tank guess</h3>
+          <p>"I got 55 this tank!" Every pump's auto-cutoff stops at a slightly different level, so what counts as <em>full</em> wobbles a few percent. Any single tank's figure is part measurement, part luck.</p>
+        </div>
+        <div class="card stagger">
+          <h3>The spreadsheet drift</h3>
+          <p>DIY sheets quietly divide by the wrong litres — counting the first fill's fuel, dropping partial top-ups, or mixing time windows. The formula looks right and the answer is confidently wrong.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ METHOD ============ -->
+    <section id="method" class="wrap" data-animate>
+      <div class="arc-divider" aria-hidden="true"></div>
+      <h2>The fix: the full-to-full method, animated</h2>
+      <p class="section-lede">A <strong>full tank is the only repeatable reference point</strong> you have without instruments. So mileage is only measured between two FULL fills: kilometres travelled &divide; litres it took to refill. Watch the worked example build itself:</p>
+
+      <figure class="diagram-card">
+        <svg class="timeline" viewBox="0 0 780 240" role="img" aria-label="Timeline of five fill-ups. Segment one runs between the first two FULL fills: 410 kilometres divided by 9.84 litres equals 41.67 kilometres per litre. Segment two folds a partial top-up into the next FULL fill: 400 kilometres divided by 10 litres equals 40 kilometres per litre. A trailing partial after the last FULL fill is excluded until the next full fill.">
+          <line x1="40" y1="110" x2="760" y2="110" class="tl-axis"/>
+          <!-- markers: FULL 12000 / FULL 12410 / PARTIAL 12600 / FULL 12810 / PARTIAL 12980 -->
+          <g class="tl-marker pop d1">
+            <circle cx="60" cy="110" r="16" class="m-full"/>
+            <text x="60" y="115" class="m-letter">F</text>
+            <text x="60" y="80" class="m-odo">12,000</text>
+            <text x="60" y="150" class="m-date">5 Jan · 9.00 L</text>
+          </g>
+          <g class="tl-marker pop d2">
+            <circle cx="320" cy="110" r="16" class="m-full"/>
+            <text x="320" y="115" class="m-letter">F</text>
+            <text x="320" y="80" class="m-odo">12,410</text>
+            <text x="320" y="150" class="m-date">18 Jan · 9.84 L</text>
+          </g>
+          <g class="tl-marker pop d3">
+            <circle cx="440" cy="110" r="13" class="m-partial"/>
+            <text x="440" y="115" class="m-letter partial">P</text>
+            <text x="440" y="80" class="m-odo">12,600</text>
+            <text x="440" y="150" class="m-date">2 Feb · 4.50 L</text>
+          </g>
+          <g class="tl-marker pop d4">
+            <circle cx="570" cy="110" r="16" class="m-full"/>
+            <text x="570" y="115" class="m-letter">F</text>
+            <text x="570" y="80" class="m-odo">12,810</text>
+            <text x="570" y="150" class="m-date">14 Feb · 5.50 L</text>
+          </g>
+          <g class="tl-marker pop d5 excluded">
+            <circle cx="720" cy="110" r="13" class="m-partial"/>
+            <text x="720" y="115" class="m-letter partial">P</text>
+            <text x="720" y="80" class="m-odo">12,980</text>
+            <text x="720" y="150" class="m-date">25 Feb</text>
+          </g>
+          <!-- segment brackets -->
+          <g class="tl-seg d6">
+            <line x1="78" y1="185" x2="302" y2="185" class="seg-line grow"/>
+            <text x="190" y="212" class="seg-label">410 km &divide; 9.84 L = <tspan class="seg-val" data-fig="seg1">41.67</tspan> km/L</text>
+          </g>
+          <g class="tl-seg d7">
+            <line x1="338" y1="185" x2="552" y2="185" class="seg-line grow"/>
+            <text x="445" y="212" class="seg-label">400 km &divide; (4.50 + 5.50) L = <tspan class="seg-val" data-fig="seg2">40.00</tspan> km/L</text>
+          </g>
+          <g class="tl-seg d8 excluded">
+            <text x="770" y="212" class="seg-label">excluded until<tspan x="770" dy="18">the next FULL</tspan></text>
+          </g>
+        </svg>
+        <figcaption>Worked example — invented demo prices, checkable by hand. F = full fill, P = partial top-up.</figcaption>
+      </figure>
+
+      <div class="method-points">
+        <div class="point stagger">
+          <span class="point-mark" aria-hidden="true">1</span>
+          <p><strong>A segment runs between consecutive FULL fills.</strong> The litres of every fill <em>after</em> the previous FULL through this FULL go in the denominator — so the first FULL's 9.00 L is a starting line, never counted.</p>
+        </div>
+        <div class="point stagger">
+          <span class="point-mark" aria-hidden="true">2</span>
+          <p><strong>Partial top-ups fold into the segment they belong to</strong> — and the segment is honestly labelled <em>includes partial</em>. Segment two above: 400 km &divide; (4.50 + 5.50) L.</p>
+        </div>
+        <div class="point stagger">
+          <span class="point-mark" aria-hidden="true">3</span>
+          <p><strong>Entries after the last FULL are excluded, with the reason on screen.</strong> The 25 Feb partial can't be measured yet — it joins the math at your next full fill. Lifetime stays <span class="fig" data-fig="lifetime">40.83</span> km/L (810 km &divide; 19.84 L) either way.</p>
+        </div>
+        <div class="point stagger">
+          <span class="point-mark" aria-hidden="true">&empty;</span>
+          <p><strong>No reference points, no number.</strong> One full fill, or a log of only partials? fuelbook shows your spend totals and says <em>"need two full fills to compute"</em> — it never invents a mileage.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ TREND ============ -->
+    <section id="trend" class="wrap" data-animate>
+      <div class="arc-divider" aria-hidden="true"></div>
+      <h2>One point per tank — and a trend you can act on</h2>
+      <p class="section-lede">Single tanks wobble with pump cutoffs, so fuelbook plots every tank against a <strong>trailing-3-tank average</strong> and tells you to trust the lifetime line over any one point.</p>
+
+      <figure class="diagram-card">
+        <svg class="trend-chart" viewBox="0 0 720 220" role="img" aria-label="A line chart of kilometres per litre, one point per tank: 43.1, 41.6, 42.4, 40.9, 41.8, 42.0, then a drop to 37.2. A dashed line marks the trailing three-tank average of 41.57. The last point sits more than ten percent below it and is highlighted with a neutral prompt.">
+          <!-- gridlines -->
+          <line x1="50" y1="40" x2="690" y2="40" class="grid"/>
+          <line x1="50" y1="95" x2="690" y2="95" class="grid"/>
+          <line x1="50" y1="150" x2="690" y2="150" class="grid"/>
+          <text x="42" y="45" class="axis-label">44</text>
+          <text x="42" y="100" class="axis-label">40</text>
+          <text x="42" y="155" class="axis-label">36</text>
+          <!-- trailing-3 average (41.57) -->
+          <line x1="50" y1="73.4" x2="690" y2="73.4" class="avg-line d5"/>
+          <text x="688" y="66" class="avg-label d5">trailing-3 avg <tspan data-fig="trailavg">41.57</tspan></text>
+          <!-- polyline through 7 tanks -->
+          <polyline class="trend-line draw" fill="none" points="80,52.4 180,73 280,62 380,82.6 480,70.3 580,67.5 660,133.5"/>
+          <circle cx="80" cy="52.4" r="6" class="pt d1"/>
+          <circle cx="180" cy="73" r="6" class="pt d1"/>
+          <circle cx="280" cy="62" r="6" class="pt d2"/>
+          <circle cx="380" cy="82.6" r="6" class="pt d2"/>
+          <circle cx="480" cy="70.3" r="6" class="pt d3"/>
+          <circle cx="580" cy="67.5" r="6" class="pt d3"/>
+          <circle cx="660" cy="133.5" r="7" class="pt dip d4"/>
+          <circle cx="660" cy="133.5" r="7" class="pt-pulse d4"/>
+          <text x="652" y="166" class="dip-label d5">37.2 — more than 10% below your average</text>
+        </svg>
+        <figcaption>Worked example. The dip triggers a neutral prompt: <em>"below your average — check tyre pressure, service due, or fuel quality."</em> A prompt to look, never a mechanical diagnosis.</figcaption>
+      </figure>
+    </section>
+
+    <!-- ============ COST ============ -->
+    <section id="cost" class="wrap" data-animate>
+      <div class="arc-divider" aria-hidden="true"></div>
+      <h2>True cost per km — fuel alone understates it</h2>
+      <p class="section-lede">fuelbook computes both figures over the <strong>same first-FULL-to-last-FULL window</strong>, so they cover exactly the same 810 km. Expenses dated outside the window are flagged <em>waiting for next full fill</em>, never silently mixed in.</p>
+
+      <div class="diagram-card cost-card">
+        <div class="bar-row">
+          <span class="bar-name">Fuel only</span>
+          <div class="bar-track"><div class="bar fuel grow-x" style="--w:63.4%"></div></div>
+          <span class="bar-val">&#8377;<span data-fig="fuelkm">2.58</span>/km</span>
+        </div>
+        <p class="bar-math">&#8377;2,093.20 fuel &divide; 810 km</p>
+        <div class="bar-row">
+          <span class="bar-name">All-in</span>
+          <div class="bar-track"><div class="bar allin grow-x d2" style="--w:100%"></div></div>
+          <span class="bar-val">&#8377;<span data-fig="allinkm">4.07</span>/km</span>
+        </div>
+        <p class="bar-math">(&#8377;2,093.20 fuel + &#8377;1,200 service) &divide; the same 810 km &middot; a &#8377;4,000 insurance premium dated <em>after</em> the last FULL waits, flagged, for the next full fill</p>
+        <p class="cost-note">Worked example. That gap — <strong>&#8377;1.49 per km</strong> here — is what bike-vs-cab-vs-metro decisions actually turn on.</p>
+      </div>
+    </section>
+
+    <!-- ============ PRIVACY ============ -->
+    <section id="privacy" class="wrap" data-animate>
+      <div class="arc-divider" aria-hidden="true"></div>
+      <h2>Privacy you don't have to trust — the browser enforces it</h2>
+      <p class="section-lede">Most apps <em>promise</em> not to send your data anywhere. fuelbook makes the promise unnecessary: its Content-Security-Policy sets <code>connect-src 'none'</code>, so <strong>your browser itself blocks every network send</strong>. There is no server, no account, no analytics — and nothing to opt out of.</p>
+
+      <figure class="diagram-card privacy-fig">
+        <svg class="privacy-svg" viewBox="0 0 720 180" role="img" aria-label="A data packet leaves the fuelbook app, travels toward the internet, and is stopped at a wall labelled connect-src none. The packet never reaches the cloud.">
+          <!-- app chip -->
+          <g>
+            <rect x="30" y="48" width="150" height="70" rx="14" class="pv-app"/>
+            <path d="M81 101 A24 24 0 0 1 129 101" fill="none" class="pv-arc"/>
+            <line x1="105" y1="101" x2="123" y2="88" class="pv-needle"/>
+            <circle cx="105" cy="101" r="4.5" class="pv-hub"/>
+            <text x="105" y="140" class="pv-chip-label">your log</text>
+          </g>
+          <!-- wall -->
+          <g class="pv-wall-g">
+            <rect x="452" y="30" width="16" height="120" rx="4" class="pv-wall"/>
+            <text x="460" y="172" class="pv-wall-label">connect-src 'none'</text>
+          </g>
+          <!-- cloud, unreachable -->
+          <g class="pv-cloud-g">
+            <path d="M560 100 a22 22 0 0 1 20 -30 a26 26 0 0 1 50 4 a19 19 0 0 1 4 37 l-70 0 a16 16 0 0 1 -4 -11 z" class="pv-cloud"/>
+            <text x="608" y="135" class="pv-cloud-label">the internet</text>
+          </g>
+          <!-- packet + blocked X -->
+          <circle cx="200" cy="90" r="9" class="pv-packet"/>
+          <g class="pv-x">
+            <line x1="432" y1="72" x2="468" y2="108" class="pv-x-line"/>
+            <line x1="468" y1="72" x2="432" y2="108" class="pv-x-line"/>
+          </g>
+        </svg>
+        <figcaption>Blocked at the browser, by policy — not filtered by a server you have to believe in.</figcaption>
+      </figure>
+
+      <div class="csp-block">
+        <p class="csp-title">The actual policy line the app ships:</p>
+        <pre><code>Content-Security-Policy: default-src 'self'; connect-src 'none'; &hellip;</code></pre>
+        <ul class="privacy-list">
+          <li><strong>No network path exists.</strong> <code>connect-src 'none'</code> means fetch, XHR and WebSockets are refused by the browser before they leave the page.</li>
+          <li><strong>No third-party anything.</strong> No CDN scripts, no external fonts, no analytics beacons — the policy forbids them all.</li>
+          <li><strong>Your log lives in <code>localStorage</code>, in your browser, full stop.</strong> Clearing site data erases it; the built-in CSV export is your backup.</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- ============ FEATURES ============ -->
+    <section id="features" class="wrap" data-animate>
+      <div class="arc-divider" aria-hidden="true"></div>
+      <h2>What's in the app</h2>
+      <div class="card-grid four">
+        <div class="card mini stagger"><h3>Fill-up log</h3><p>Date, odometer, litres, amount — price/litre auto-derived (&#8377;<span data-fig="ppl">105.00</span>/L in the example). FULL/PARTIAL toggle, edit, delete, validation that rejects backwards odometers.</p></div>
+        <div class="card mini stagger"><h3>Dashboard</h3><p>Lifetime km/L, best and worst tank, fuel and all-in cost/km, this-month spend, total km — every card states its window.</p></div>
+        <div class="card mini stagger"><h3>Trend chart</h3><p>One point per tank, trailing-3 average, and a neutral prompt when a tank dips more than 10% below it.</p></div>
+        <div class="card mini stagger"><h3>Expense log</h3><p>Service, insurance, tyres, other — feeding the all-in figure over the same honest window.</p></div>
+        <div class="card mini stagger"><h3>Units &amp; currency</h3><p>km+L (km/L and L/100km — 41.67 km/L is <span data-fig="l100">2.40</span> L/100km) or mi+gal (mpg). Free-text currency symbol, &#8377; default.</p></div>
+        <div class="card mini stagger"><h3>Sample log</h3><p>One tap loads clearly-invented demo entries under a persistent SAMPLE banner, so the payoff is visible before your own second full fill.</p></div>
+        <div class="card mini stagger"><h3>CSV export &amp; print</h3><p>RFC-4180 CSV of fills and expenses — your backup and handoff — plus a printable one-page summary.</p></div>
+        <div class="card mini stagger"><h3>Method card</h3><p>The full-to-full rule and its limits, stated in plain words inside the app itself.</p></div>
+      </div>
+    </section>
+
+    <!-- ============ LIMITS ============ -->
+    <section id="limits" class="wrap" data-animate>
+      <div class="arc-divider" aria-hidden="true"></div>
+      <h2>What fuelbook honestly won't do</h2>
+      <ul class="limits-list">
+        <li><strong>Manual entry only.</strong> No receipt OCR, no OBD/Bluetooth, no GPS trip tracking — and the app says so on the entry screen.</li>
+        <li><strong>No mileage without two FULL fills.</strong> The method can't produce one, so neither will the app.</li>
+        <li><strong>Single tanks wobble.</strong> Pump cutoffs vary; trust the lifetime line over any one tank.</li>
+        <li><strong>One vehicle per browser profile.</strong> No cloud sync, no accounts, ever — no fuel-price feeds or claimed-mileage database either. Your claimed-figure reference line is typed by you and labelled as such.</li>
+      </ul>
+    </section>
+
+    <!-- ============ CTA ============ -->
+    <section id="cta" class="wrap" data-animate>
+      <div class="cta-panel">
+        <svg class="cta-dial" viewBox="0 0 64 44" aria-hidden="true" focusable="false">
+          <path d="M8 36 A26 26 0 0 1 56 36" fill="none" class="dial-arc"/>
+          <line x1="8" y1="36" x2="8" y2="30" class="dial-tick"/>
+          <line x1="32" y1="10" x2="32" y2="16" class="dial-tick"/>
+          <line x1="56" y1="36" x2="56" y2="30" class="dial-tick"/>
+          <line x1="32" y1="36" x2="50" y2="23" class="dial-needle"/>
+          <circle cx="32" cy="36" r="4" class="dial-hub"/>
+        </svg>
+        <h2>Start your log at the next full fill</h2>
+        <p>Free, offline, no account. Two full fills from now, you'll have a number nobody can argue with.</p>
+        <a class="btn btn-primary btn-big" href="https://sreenivas-sadhu-prabhakara.github.io/fuelbook/">Open fuelbook</a>
+        <p class="cta-sub"><a href="https://github.com/Sreenivas-Sadhu-Prabhakara/fuelbook">Source code (MIT)</a> &middot; runs entirely in your browser</p>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="wrap">
+      <p><strong>Disclaimer:</strong> this page and the fuelbook app are informational calculators over numbers you enter yourself — not financial, mechanical, or professional advice. All figures on this page are a clearly-invented worked example. Software is provided <em>"as is"</em>, without warranty of any kind, under the MIT License. Verify anything that matters with a professional.</p>
+      <p>
+        <a href="https://sreenivas-sadhu-prabhakara.github.io/fuelbook/">fuelbook app</a> &middot;
+        <a href="https://github.com/Sreenivas-Sadhu-Prabhakara/fuelbook-explained">this page's source</a> &middot;
+        MIT &copy; 2026 Sreenivas Sadhu Prabhakara
+      </p>
+    </div>
+  </footer>
+
+  <script src="data/example.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

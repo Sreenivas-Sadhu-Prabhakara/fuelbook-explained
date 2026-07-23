@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<style>
+  /* rendered locally to og-image.png — never served under the CSP */
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { width: 1200px; height: 630px; overflow: hidden; }
+  body {
+    position: relative;
+    background:
+      radial-gradient(1000px 560px at 18% -10%, rgba(16, 80, 95, 0.85), transparent 62%),
+      radial-gradient(820px 500px at 96% 108%, rgba(224, 178, 110, 0.14), transparent 58%),
+      linear-gradient(175deg, #05262E 0%, #062E38 55%, #073540 100%);
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    color: #F2E9D8;
+    -webkit-font-smoothing: antialiased;
+  }
+  .dial {
+    position: absolute;
+    left: 24px; top: 90px;
+    width: 540px; height: 470px;
+  }
+  .copy {
+    position: absolute;
+    right: 70px; top: 96px;
+    width: 540px;
+    display: flex; flex-direction: column; gap: 26px;
+  }
+  .wordmark {
+    font-size: 46px; font-weight: 800; letter-spacing: -0.03em;
+  }
+  .wordmark em { font-style: normal; color: #E0B26E; }
+  .copy h1 {
+    font-size: 54px; font-weight: 800; letter-spacing: -0.03em; line-height: 1.14;
+  }
+  .copy h1 em { font-style: normal; color: #E0B26E; }
+  .copy p {
+    font-size: 26px; font-weight: 500; line-height: 1.42; color: #BDD2D2;
+  }
+  .chips { display: flex; flex-wrap: wrap; gap: 12px; }
+  .chip {
+    font-size: 21px; font-weight: 650;
+    color: #F2E9D8;
+    border: 2px solid #1E667A;
+    border-radius: 999px;
+    padding: 8px 20px;
+    background: rgba(16, 80, 95, 0.45);
+  }
+</style>
+</head>
+<body>
+  <!-- the family dial, needle mid-sweep, with segment math riding the arc -->
+  <svg class="dial" viewBox="0 0 540 470" aria-hidden="true">
+    <path d="M54 396 A216 216 0 0 1 486 396" fill="none" stroke="#10505F" stroke-width="26" stroke-linecap="round"/>
+    <path d="M54 396 A216 216 0 0 1 486 396" fill="none" stroke="#0F6E85" stroke-width="9" stroke-linecap="round"/>
+    <line x1="54" y1="396" x2="88" y2="396" stroke="#F2E9D8" stroke-width="8" stroke-linecap="round" transform="rotate(0 270 396)"/>
+    <line x1="54" y1="396" x2="88" y2="396" stroke="#7FA8B0" stroke-width="6" stroke-linecap="round" transform="rotate(45 270 396)"/>
+    <line x1="54" y1="396" x2="88" y2="396" stroke="#7FA8B0" stroke-width="6" stroke-linecap="round" transform="rotate(90 270 396)"/>
+    <line x1="54" y1="396" x2="88" y2="396" stroke="#7FA8B0" stroke-width="6" stroke-linecap="round" transform="rotate(135 270 396)"/>
+    <line x1="54" y1="396" x2="88" y2="396" stroke="#F2E9D8" stroke-width="8" stroke-linecap="round" transform="rotate(180 270 396)"/>
+    <text x="54" y="448" font-family="system-ui, sans-serif" font-size="38" font-weight="800" fill="#F2E9D8" text-anchor="middle">E</text>
+    <text x="486" y="448" font-family="system-ui, sans-serif" font-size="38" font-weight="800" fill="#E0B26E" text-anchor="middle">F</text>
+    <!-- the worked-example math annotated above the arc -->
+    <text x="270" y="118" font-family="system-ui, sans-serif" font-size="30" font-weight="700" fill="#BDD2D2" text-anchor="middle">410 km &#247; 9.84 L</text>
+    <text x="270" y="160" font-family="system-ui, sans-serif" font-size="36" font-weight="800" fill="#E0B26E" text-anchor="middle">= 41.67 km/L</text>
+    <!-- needle mid-sweep -->
+    <line x1="270" y1="396" x2="398" y2="230" stroke="#E0B26E" stroke-width="13" stroke-linecap="round"/>
+    <circle cx="270" cy="396" r="24" fill="#E0B26E"/>
+    <circle cx="270" cy="396" r="9" fill="#062E38"/>
+  </svg>
+
+  <div class="copy">
+    <div class="wordmark">fuelbook, <em>explained</em></div>
+    <h1>How honest mileage math <em>actually works</em></h1>
+    <p>The full-to-full method, animated — tank-to-tank km/L, true cost per km, and privacy the browser itself enforces.</p>
+    <div class="chips">
+      <span class="chip">full-to-full method</span>
+      <span class="chip">worked example</span>
+      <span class="chip">connect-src 'none'</span>
+    </div>
+  </div>
+</body>
+</html>
